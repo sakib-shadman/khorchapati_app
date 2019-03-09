@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Khorchapati</string>
+    <string name="khorchapati_db">khorchapati_db</string>
 </resources>

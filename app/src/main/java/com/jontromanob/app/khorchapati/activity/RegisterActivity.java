@@ -6,17 +6,16 @@ import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.jontromanob.app.khorchapati.R;
+import com.jontromanob.app.khorchapati.db.AppDatabase;
 import com.jontromanob.app.khorchapati.viewmodel.RegisterViewModel;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModel;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class RegisterActivity extends AppCompatActivity {
+public class RegisterActivity extends AppCompatActivity implements RegisterViewModel.DataInsertion {
 
 
     @BindView(R.id.txtUserName)
@@ -28,7 +27,8 @@ public class RegisterActivity extends AppCompatActivity {
 
 
     private RegisterViewModel mViewModel;
-    private String userName,userMobile,userPassword;
+    private String userName, userMobile, userPassword;
+    private AppDatabase appDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,36 +39,40 @@ public class RegisterActivity extends AppCompatActivity {
 
     }
 
-    private void init(){
+    private void init() {
 
         mViewModel = ViewModelProviders.of(this).get(RegisterViewModel.class);
+        appDatabase = AppDatabase.getDatabase(getApplicationContext());
     }
-    @OnClick(R.id.btnSubmit)
-    public void onClickSubmitBtn(){
 
-        if(inputValidated()){
+    @OnClick(R.id.btnSubmit)
+    public void onClickSubmitBtn() {
+
+        if (inputValidated()) {
             getInput();
+            mViewModel.setUser(appDatabase, userName, userMobile, userPassword, this);
+            mViewModel.addUser();
         }
     }
 
-    private void getInput(){
+    private void getInput() {
         userName = txtUserName.getText().toString().trim();
         userMobile = txtUserMobile.getText().toString().trim();
         userPassword = txtUserPassword.getText().toString().trim();
     }
 
-    private boolean inputValidated(){
+    private boolean inputValidated() {
 
-        if(txtUserName.getText().toString().isEmpty()){
+        if (txtUserName.getText().toString().isEmpty()) {
             Toast.makeText(this, "Please insert username", Toast.LENGTH_SHORT).show();
             return false;
         }
-        if(txtUserMobile.getText().toString().isEmpty()){
+        if (txtUserMobile.getText().toString().isEmpty()) {
             Toast.makeText(this, "Please insert mobile no.", Toast.LENGTH_SHORT).show();
             return false;
         }
 
-        if(txtUserPassword.getText().toString().isEmpty()){
+        if (txtUserPassword.getText().toString().isEmpty()) {
             Toast.makeText(this, "Please insert password", Toast.LENGTH_SHORT).show();
             return false;
         }
@@ -76,4 +80,13 @@ public class RegisterActivity extends AppCompatActivity {
         return true;
     }
 
+    @Override
+    public void onSuccess() {
+        Toast.makeText(this, "Registration Successful", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFailure() {
+
+    }
 }
