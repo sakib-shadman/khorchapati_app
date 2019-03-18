@@ -7,9 +7,13 @@ import android.widget.Toast;
 import com.google.android.material.textfield.TextInputEditText;
 import com.jontromanob.app.khorchapati.R;
 import com.jontromanob.app.khorchapati.db.AppDatabase;
+import com.jontromanob.app.khorchapati.model.User;
 import com.jontromanob.app.khorchapati.viewmodel.RegisterViewModel;
 
+import java.util.List;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -43,6 +47,14 @@ public class RegisterActivity extends AppCompatActivity implements RegisterViewM
 
         mViewModel = ViewModelProviders.of(this).get(RegisterViewModel.class);
         appDatabase = AppDatabase.getDatabase(getApplicationContext());
+        mViewModel.getAllUsers (appDatabase).observe (this, new Observer<List<User>> () {
+            @Override
+            public void onChanged(List<User> users) {
+
+            }
+        });
+
+
     }
 
     @OnClick(R.id.btnSubmit)
@@ -51,7 +63,15 @@ public class RegisterActivity extends AppCompatActivity implements RegisterViewM
         if (inputValidated()) {
             getInput();
             mViewModel.setUser(appDatabase, userName, userMobile, userPassword, this);
-            mViewModel.addUser();
+            //mViewModel.addUser();
+            mViewModel.getSingleUser (appDatabase,userName,userPassword).observe (this, new Observer<List<User>> () {
+                @Override
+                public void onChanged(List<User> users) {
+
+                }
+            });
+
+
         }
     }
 
