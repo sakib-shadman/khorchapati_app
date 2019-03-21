@@ -8,6 +8,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.jontromanob.app.khorchapati.R;
 import com.jontromanob.app.khorchapati.db.AppDatabase;
 import com.jontromanob.app.khorchapati.model.User;
+import com.jontromanob.app.khorchapati.retrofit.MyAttendanceList;
 import com.jontromanob.app.khorchapati.viewmodel.RegisterViewModel;
 
 import java.util.List;
@@ -54,7 +55,15 @@ public class RegisterActivity extends AppCompatActivity implements RegisterViewM
             }
         });
 
+        mViewModel.getDataFromApi ().observe (this, new Observer<List<MyAttendanceList>> () {
+            @Override
+            public void onChanged(List<MyAttendanceList> myAttendanceLists) {
 
+                if(myAttendanceLists != null){
+
+                }
+            }
+        });
     }
 
     @OnClick(R.id.btnSubmit)
