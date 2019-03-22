@@ -2,10 +2,15 @@ package com.jontromanob.app.khorchapati.viewmodel;
 
 import android.os.AsyncTask;
 
+import com.facebook.stetho.server.http.HttpStatus;
 import com.jontromanob.app.khorchapati.db.AppDatabase;
+import com.jontromanob.app.khorchapati.model.LogInResponse;
+import com.jontromanob.app.khorchapati.model.LoginApiResponse;
+import com.jontromanob.app.khorchapati.model.Status;
 import com.jontromanob.app.khorchapati.model.User;
 import com.jontromanob.app.khorchapati.retrofit.ApiClient;
 import com.jontromanob.app.khorchapati.retrofit.AttendanceApiInterface;
+import com.jontromanob.app.khorchapati.retrofit.LoginApiInterface;
 import com.jontromanob.app.khorchapati.retrofit.MyAttendanceList;
 
 import java.util.List;
@@ -24,6 +29,7 @@ public class RegisterViewModel extends ViewModel {
     private DataInsertion dataInsertion;
     private LiveData<List<User>> allUsers;
     private MutableLiveData<List<MyAttendanceList>> mMyAttendanceList = new MutableLiveData<> ();
+    private MutableLiveData<LoginApiResponse> logInResponseMutableLiveData = new MutableLiveData<> ();
 
     public void setUser(AppDatabase appDatabase, String name, String mobile, String pasword, DataInsertion dataInsertion) {
         user = new User ();
@@ -108,6 +114,42 @@ public class RegisterViewModel extends ViewModel {
 
         return mMyAttendanceList;
 
+    }
+
+    public LiveData<LoginApiResponse> executeLogIn() {
+
+        LoginApiResponse loginApiResponse = new LoginApiResponse ();
+        LoginApiInterface apiInterface = ApiClient.getClient ().create (LoginApiInterface.class);
+        Call<LogInResponse> call = apiInterface.postLoginInfo ("shadman", "12345", "password", 2);
+        call.enqueue (new Callback<LogInResponse> () {
+            @Override
+            public void onResponse(Call<LogInResponse> call, Response<LogInResponse> response) {
+                if (response.code () == HttpStatus.HTTP_INTERNAL_SERVER_ERROR) {
+
+                    loginApiResponse.setLogInResponse (null);
+                    loginApiResponse.setStatus (Status.ERROR);
+                    logInResponseMutableLiveData.setValue (loginApiResponse);
+                } else if (response.body () != null) {
+                    loginApiResponse.setLogInResponse (response.body ());
+                    loginApiResponse.setStatus (Status.SUCCESS);
+                    logInResponseMutableLiveData.setValue (loginApiResponse);
+
+                } else {
+                    loginApiResponse.setLogInResponse (null);
+                    loginApiResponse.setStatus (Status.ERROR);
+                    logInResponseMutableLiveData.setValue (loginApiResponse);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LogInResponse> call, Throwable t) {
+
+                loginApiResponse.setLogInResponse (null);
+                loginApiResponse.setStatus (Status.ERROR);
+                logInResponseMutableLiveData.setValue (loginApiResponse);
+            }
+        });
+        return logInResponseMutableLiveData;
     }
 
     public interface DataInsertion {

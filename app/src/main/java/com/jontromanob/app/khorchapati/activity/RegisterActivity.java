@@ -1,12 +1,15 @@
 package com.jontromanob.app.khorchapati.activity;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.jontromanob.app.khorchapati.R;
 import com.jontromanob.app.khorchapati.db.AppDatabase;
+import com.jontromanob.app.khorchapati.model.LoginApiResponse;
+import com.jontromanob.app.khorchapati.model.Status;
 import com.jontromanob.app.khorchapati.model.User;
 import com.jontromanob.app.khorchapati.retrofit.MyAttendanceList;
 import com.jontromanob.app.khorchapati.viewmodel.RegisterViewModel;
@@ -14,6 +17,7 @@ import com.jontromanob.app.khorchapati.viewmodel.RegisterViewModel;
 import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import butterknife.BindView;
@@ -64,12 +68,34 @@ public class RegisterActivity extends AppCompatActivity implements RegisterViewM
                 }
             }
         });
+
+
     }
 
     @OnClick(R.id.btnSubmit)
     public void onClickSubmitBtn() {
 
-        if (inputValidated()) {
+        mViewModel.executeLogIn ().observe (this, new Observer<LoginApiResponse> () {
+            @Override
+            public void onChanged(LoginApiResponse loginApiResponse) {
+
+
+                if(loginApiResponse.getStatus ().equals (Status.SUCCESS)) {
+                   // mViewModel.executeLogIn ().removeObservers (RegisterActivity.this);
+                    Toast.makeText (RegisterActivity.this, "Success", Toast.LENGTH_SHORT).show ();
+                    startActivity (new Intent (RegisterActivity.this,HomeActivity.class));
+
+                }
+                else if(loginApiResponse.getStatus ().equals (Status.ERROR)){
+                    Toast.makeText (RegisterActivity.this, "Failure", Toast.LENGTH_SHORT).show ();
+
+                }
+            }
+        });
+
+
+
+       /* if (inputValidated()) {
             getInput();
             mViewModel.setUser(appDatabase, userName, userMobile, userPassword, this);
             //mViewModel.addUser();
@@ -81,7 +107,7 @@ public class RegisterActivity extends AppCompatActivity implements RegisterViewM
             });
 
 
-        }
+        }*/
     }
 
     private void getInput() {
